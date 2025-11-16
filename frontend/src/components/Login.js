@@ -22,7 +22,12 @@ const Login = ({ onLogin }) => {
       onLogin();
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      if (err.code === 'ERR_NETWORK' || err.message?.includes('ERR_CONNECTION_REFUSED') || err.message?.includes('Network Error')) {
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        setError(`Cannot connect to backend server. Current API URL: ${apiUrl}. Please check: 1) Backend is running, 2) REACT_APP_API_URL is set in deployment settings, 3) Backend URL is correct. See FIX_CONNECTION_ERROR.md for details.`);
+      } else {
+        setError(err.response?.data?.message || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
